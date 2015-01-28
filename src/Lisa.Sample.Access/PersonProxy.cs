@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Lisa.Sample.Models;
 using Newtonsoft.Json;
@@ -38,6 +39,21 @@ namespace Lisa.Sample.Access
                 var json = await result.Content.ReadAsStringAsync();
                 var person = JsonConvert.DeserializeObject<Person>(json);
                 return person;
+            }
+        }
+
+        public async Task<Person> PostAsync(Person person)
+        {
+            var json = JsonConvert.SerializeObject(person);
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.BaseAddress = new Uri("http://localhost:61063/");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var result = await httpClient.PostAsync("/api/persons/", content);
+
+                var response = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Person>(response);
             }
         }
     }
